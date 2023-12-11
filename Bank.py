@@ -1,25 +1,23 @@
 import os, readline
 from time import sleep
 
-def loginView():
+def loginView(): #Login View, allows user to login
 
-    leaveView = False
-
-    while not leaveView:
+    while True:
 
         clear()
         print('Python Bank - Login')
         print('-------------------')
         name = input('Name: ')
 
-        if name.replace(' ','') == '': break
+        if name.replace(' ','') == '': break #Exit program if name is empty
 
         password = input('Password: ')
 
-        if loginRequest(name, password):
+        if loginRequest(name, password): 
 
             if name.lower() == "admin": adminView()
-            else: accountView(name)
+            else: accountView(name) 
         
         else:
 
@@ -34,8 +32,9 @@ def accountView(name):
     account = Account(name)
 
     while not leaveView:
-
-        option = drawScreen(f'Python Bank - Account: {account.name}\nBalance: {account.balance:,} €', ['Transfer Money','Change Password','Exit'])
+        
+        #Draw main menu for user
+        option = drawMenu(f'Python Bank - Account: {account.name}\nBalance: {account.balance:,} €', ['Transfer Money','Change Password','Exit'])
 
         clear()
         
@@ -92,7 +91,7 @@ def adminView():
 
     while not leaveView:
 
-        option = drawScreen(f'Python Bank - Admin Settings', ['Create Account','Delete Account','Exit'])
+        option = drawMenu(f'Python Bank - Admin Settings', ['Create Account','Delete Account','Exit'])
         
         clear()
 
@@ -130,7 +129,7 @@ def adminView():
 
 class Account:
 
-    def __init__(self, name):
+    def __init__(self, name) -> None:
         
         self.name = name
         self.path = f'Accounts/{self.name}'
@@ -139,12 +138,12 @@ class Account:
         if self.exists:
             
             file = readFile(self.path)
-            data = file.split('\n')
+            data = file.split('\n') #Data is split in file at a certain order, separated by a backspace
 
             self.balance = int(data[0])
             self.password = data[1]
     
-    def create(self, password):
+    def create(self, password) -> bool:
 
         if not self.exists:
 
@@ -159,7 +158,7 @@ class Account:
 
         return False
     
-    def transfer(self, receiver, amount):
+    def transfer(self, receiver, amount) -> str:
         
         try: amount = int(amount)
         except: return 'Amount must be numerical!'
@@ -186,12 +185,15 @@ class Account:
 
         return f'Successfully transferred {amount}€ to {receiver.name}!'
     
-    def save(self):
+    def save(self): #Save file ie. update account file
 
         text = f"{self.balance}\n{self.password}"
         writeFile(self.path, text)
 
-def loginRequest(name, password):
+
+
+
+def loginRequest(name, password) -> bool:
 
     account = Account(name)
 
@@ -203,7 +205,7 @@ def loginRequest(name, password):
     
     return True
 
-def drawScreen(title, options):
+def drawMenu(title, options) -> int: #Title, if multiple can be split by \n. options in string list
 
     clear()
 
@@ -234,13 +236,12 @@ def drawScreen(title, options):
     
     
 
+#Useful Functions
 
-
-def clear():
+def clear(): #Clear screen
     os.system('clear')
 
-
-def readFile(path):
+def readFile(path) -> str:
     with open(path, mode='r') as file:
         return(file.read())
     
@@ -252,13 +253,18 @@ def writeFile(path, text):
 
 # Program Start
 
-if not os.path.exists('Accounts'): #Creates Accounts folder if it does not exist
-    os.mkdir('Accounts')
+def main():
 
-if not os.path.exists('Accounts/Admin'): #Creates Admin account with password 0000 if it does not exist
-    Account('Admin').create('0000')
+    if not os.path.exists('Accounts'): #Creates Accounts folder if it does not exist
+        os.mkdir('Accounts')
 
-if not os.path.exists('Accounts/Bank'): #Creates Bank account with password 0000 if it does not exist
-    Account('Bank').create('0000')
+    if not os.path.exists('Accounts/Admin'): #Creates Admin account with password 0000 if it does not exist
+        Account('Admin').create('0000')
 
-loginView()
+    if not os.path.exists('Accounts/Bank'): #Creates Bank account with password 0000 if it does not exist
+        Account('Bank').create('0000')
+
+    loginView()
+
+if __name__ == '__main__':
+    main()
